@@ -9,6 +9,8 @@ USER = os.getenv("MONGO_USER")
 PASSWORD = os.getenv("MONGO_PASSWORD")
 
 def get_database(db_name):
+    """Function that return db connection"""
+    
     CONNECTION_STRING =\
         f"mongodb+srv://{USER}:{PASSWORD}@cluster0.c5png4c.mongodb.net/?retryWrites=true&w=majority"
         

@@ -6,8 +6,8 @@ from dateutil.relativedelta import relativedelta
 from pymongo_get_database import get_database
 
 async def aggregate(data: str) -> dict or None:
-    """Main function, that takes raw string data, validates it, calls db request func 
-    and return result"""
+    """Main function, that takes raw string data, validates it, calls 
+    db request func and return result"""
     try:
         dt_from = data['dt_from']
         dt_upto = data['dt_upto']
@@ -19,7 +19,9 @@ async def aggregate(data: str) -> dict or None:
         dt_upto = parser.parse(dt_upto)
     except ValueError:
         return None
-    if not (group_type == 'month' or group_type == 'day' or group_type == 'hour'):
+    if not (group_type == 'month' 
+            or group_type == 'day' 
+            or group_type == 'hour'):
         return None
     
     return await get_aggregation_data(dt_from, dt_upto, group_type)
@@ -40,7 +42,8 @@ def get_periods(start: datetime, finish: datetime, period_type) -> list[str]:
     periods = [x.strftime("%Y-%m-%dT%H:%M:%S") for x in periods]
     return periods
 
-async def get_aggregation_data(dt_from: datetime, dt_upto: datetime, group_type: str) -> dict:
+async def get_aggregation_data(dt_from: datetime, 
+                               dt_upto: datetime, group_type: str) -> dict:
     """Function that makes request for db and process output data"""
     dbname = get_database("cv")
     collection = dbname["sample_collection"]
@@ -61,7 +64,10 @@ async def get_aggregation_data(dt_from: datetime, dt_upto: datetime, group_type:
         {
             "$group": {
 
-                "_id": { "$dateToString": { "date": "$dt", "format": f"{agg_format}"} },
+                "_id": { "$dateToString": { 
+                    "date": "$dt", 
+                    "format": f"{agg_format}"} 
+                },
                 "value": { "$sum": "$value"},
             }
         },
@@ -84,9 +90,11 @@ async def get_aggregation_data(dt_from: datetime, dt_upto: datetime, group_type:
             i += 1
             continue
         if group_type == "month":
-            new_date = parser.parse(res[j]['_id']).replace(day=1).strftime("%Y-%m-%dT%H:%M:%S")
+            new_date = parser.parse(res[j]['_id'])\
+                             .replace(day=1).strftime("%Y-%m-%dT%H:%M:%S")
         else:
-            new_date = parser.parse(res[j]['_id']).strftime("%Y-%m-%dT%H:%M:%S")
+            new_date = parser.parse(res[j]['_id'])\
+                             .strftime("%Y-%m-%dT%H:%M:%S")
             
         if periods[i] == new_date:
             data['dataset'].append(res[j]['value'])
