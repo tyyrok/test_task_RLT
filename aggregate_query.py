@@ -5,7 +5,7 @@ from dateutil.relativedelta import relativedelta
 
 from pymongo_get_database import get_database
 
-async def aggregate(data: str):
+async def aggregate(data: str) -> dict or None:
     """Main function, that takes raw string data, validates it, calls db request func 
     and return result"""
     try:
@@ -13,14 +13,14 @@ async def aggregate(data: str):
         dt_upto = data['dt_upto']
         group_type = data['group_type']
     except KeyError:
-        return False
+        return None
     try:
         dt_from = parser.parse(dt_from)
         dt_upto = parser.parse(dt_upto)
     except ValueError:
-        return False
+        return None
     if not (group_type == 'month' or group_type == 'day' or group_type == 'hour'):
-        return False
+        return None
     
     return await get_aggregation_data(dt_from, dt_upto, group_type)
 
