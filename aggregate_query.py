@@ -5,7 +5,7 @@ from dateutil.relativedelta import relativedelta
 
 from pymongo_get_database import get_database
 
-async def aggregate(data: str) -> dict or None:
+async def aggregate(data: str, collection=None) -> dict or None:
     """Main function, that takes raw string data, validates it, calls 
     db request func and return result"""
     try:
@@ -24,7 +24,7 @@ async def aggregate(data: str) -> dict or None:
             or group_type == 'hour'):
         return None
     
-    return await get_aggregation_data(dt_from, dt_upto, group_type)
+    return await get_aggregation_data(dt_from, dt_upto, group_type, collection)
 
 def get_periods(start: datetime, finish: datetime, period_type) -> list[str]:
     """Auxiliary function that creates list of all consecutive dates 
@@ -42,11 +42,12 @@ def get_periods(start: datetime, finish: datetime, period_type) -> list[str]:
     periods = [x.strftime("%Y-%m-%dT%H:%M:%S") for x in periods]
     return periods
 
-async def get_aggregation_data(dt_from: datetime, 
-                               dt_upto: datetime, group_type: str) -> dict:
+async def get_aggregation_data(dt_from: datetime, dt_upto: datetime, 
+                               group_type: str, collection=None ) -> dict:
     """Function that makes request for db and process output data"""
-    dbname = get_database("cv")
-    collection = dbname["sample_collection"]
+    if collection is None:
+        dbname = get_database("cv")
+        collection = dbname["sample_collection"]
     match group_type:
         case "month":
             agg_format = "%Y-%m"

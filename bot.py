@@ -12,6 +12,7 @@ from aiogram.types import Message
 from aiogram.utils.markdown import hbold
 
 from aggregate_query import aggregate
+from pymongo_get_database import get_database
 
 if not load_dotenv('.env.txt'):
     raise FileNotFoundError
@@ -22,7 +23,10 @@ INCORRECT_INPUT = """Некорректный запрос. Пример зап�
 
 TOKEN = getenv("BOT_TOKEN")
 
-dp = Dispatcher()
+dbname = get_database('cv')
+collection = dbname["sample_collection"]   
+
+dp = Dispatcher() 
 
 @dp.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
@@ -40,7 +44,7 @@ async def echo_handler(message: types.Message) -> None:
     raw_data = message.text
     try:
         data = json.loads(raw_data)
-        res = await aggregate(data)
+        res = await aggregate(data, collection)
         if not res:
             await message.answer(INCORRECT_INPUT)
         else:
